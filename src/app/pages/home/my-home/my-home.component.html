@@ -3,5 +3,12 @@
     my-home works!
   </p>
   <app-list-example></app-list-example>
-  <app-list-example [listOfObjects]="users"></app-list-example>
+  <app-list-example [listOfObjects]="users" (onClickBox)="getClickedElement($event)"></app-list-example>
+  <div *ngIf="selectedUser">
+    <h2>selected</h2>
+    <div class="well well-sm">
+      <h3>{{selectedUser.name}}</h3>
+      <p>{{selectedUser.description}}</p>
+    </div>
+  </div>
 </div>

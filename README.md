@@ -2,14 +2,17 @@
 
 ## step 1
 
-Inputs are useful if you want to render a component base on changing variables. 
+Outputs lets us communicate to the parent that some action has been triggered. 
 
-We are going to leave default array, but we are going to also allow the array to be swapped by an external variable. 
-  
-Inputs are inserted before INIT, therefor we are going to move out init declariation for **listOfObjects** to de constructor and we are going to append a function **@Input()** on out component **list-example.component.ts**
+We are going to add to our list component **list-example.component.ts** a output on who has been clicked.
+This action is done by 2 Functions one called **@Output()** function and a Event Emitter Class **EventEmitter**. 
+
+We also need to sense the click on the component it self, so we are going to add a click event to the box in **list-example.component.html**
+
+**list-example.component.ts**
 
 ```typescript
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-list-example',
@@ -20,6 +23,7 @@ export class ListExampleComponent implements OnInit {
   // public listOfObjects: any;
   // public listOfObjects: Array<any>;
   @Input() public listOfObjects: Array<{name: string, description: string}>;
+  @Output() onClickBox = new EventEmitter<{name: string, description: string}>();
   constructor() {
     this.listOfObjects = [
       { name: "Chris", description: "Designated to code on the worst front end framework of all aka REACT" },
@@ -30,13 +34,34 @@ export class ListExampleComponent implements OnInit {
   ngOnInit() {
     // Move away this.listOfObject because inputs gets passed before INIT gets called. This avoids override.
   }
+
+  private onClickSendInfo(obj: any) {
+    this.onClickBox.emit(obj);
+  }
 }
+```
+
+**list-example.component.html**
+
+```html
+<div class="row">
+  <div class="col-md-4 col-sm-6" *ngFor="let user of listOfObjects">
+    <div class="well well-sm" (click)="onClickSendInfo(user)">
+      <h3>{{user.name}}</h3>
+      <p>{{user.description}}</p>
+    </div>
+  </div>
+</div>
 ```
 
 ## step 2
 
-Create a separate array, with the data you want the component to render. In this example, create the new array in **my-home.component.ts**
+In our parent class, we are going to create a function to handle the emitted event. For the example we are going to use **my-home.component.ts**
 
+On the template we are going to bind the event emitter to the function handling your event. For the example we are going to listen in **my-home.component.html** on our second component.
+  
+**my-home.component.ts**
+  
 ```typescript
 import { Component, OnInit } from '@angular/core';
 
@@ -48,6 +73,8 @@ import { Component, OnInit } from '@angular/core';
 export class MyHomeComponent implements OnInit {
 
   public users: Array<{name: string, description: string}>;
+  public selectedUser: any;
+
 
   constructor() { }
 
@@ -60,14 +87,15 @@ export class MyHomeComponent implements OnInit {
     ];
   }
 
+  private getClickedElement(obj: any) {
+    this.selectedUser = obj;
+  }
+
 }
 
-```
+```  
 
-
-## step 3
-
-In the template we can tell the shared component we have an array for it. And we pass it using the same name we deplared the variable adding square brackets [variable-name] **[listOfObjects]="new array"**
+**my-home.component.html**
 
 ```html
 <div class="container">
@@ -75,7 +103,16 @@ In the template we can tell the shared component we have an array for it. And we
     my-home works!
   </p>
   <app-list-example></app-list-example>
-  <app-list-example [listOfObjects]="users"></app-list-example>
+  <app-list-example [listOfObjects]="users" (onClickBox)="getClickedElement($event)"></app-list-example>
+  <div *ngIf="selectedUser">
+    <h2>selected</h2>
+    <div class="well well-sm">
+      <h3>{{selectedUser.name}}</h3>
+      <p>{{selectedUser.description}}</p>
+    </div>
+  </div>
 </div>
 
 ```
+
+

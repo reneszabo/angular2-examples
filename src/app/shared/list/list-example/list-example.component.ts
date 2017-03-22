@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-list-example',
@@ -9,6 +9,7 @@ export class ListExampleComponent implements OnInit {
   // public listOfObjects: any;
   // public listOfObjects: Array<any>;
   @Input() public listOfObjects: Array<{name: string, description: string}>;
+  @Output() onClickBox = new EventEmitter<{name: string, description: string}>();
   constructor() {
     this.listOfObjects = [
       { name: "Chris", description: "Designated to code on the worst front end framework of all aka REACT" },
@@ -18,5 +19,9 @@ export class ListExampleComponent implements OnInit {
   }
   ngOnInit() {
     // Move away this.listOfObject because inputs gets passed before INIT gets called. This avoids override.
+  }
+
+  private onClickSendInfo(obj: any) {
+    this.onClickBox.emit(obj);
   }
 }

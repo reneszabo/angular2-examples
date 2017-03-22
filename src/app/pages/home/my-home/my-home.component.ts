@@ -8,6 +8,8 @@ import { Component, OnInit } from '@angular/core';
 export class MyHomeComponent implements OnInit {
 
   public users: Array<{name: string, description: string}>;
+  public selectedUser: any;
+
 
   constructor() { }
 
@@ -18,6 +20,10 @@ export class MyHomeComponent implements OnInit {
       { name: "Tyler", description: "Secret developer, knows more that he shows" },
       { name: "Abby", description: "Future CEO of shopify" }
     ];
+  }
+
+  private getClickedElement(obj: any) {
+    this.selectedUser = obj;
   }
 
 }
