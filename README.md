@@ -69,6 +69,8 @@ export class MyHomeComponent implements OnInit {
 
 In the template we can tell the shared component we have an array for it. And we pass it using the same name we deplared the variable adding square brackets [variable-name] **[listOfObjects]="new array"**
 
+**my-home.component.ts**
+
 ```html
 <div class="container">
   <p>
