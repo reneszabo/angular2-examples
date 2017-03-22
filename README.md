@@ -2,52 +2,43 @@
 
 ## step 1
 
-create 3 components
+Add node dependencies 
 
 ```bash
-$ ng g component pages/home/my-home
-$ ng g component pages/about/my-about
-$ ng g component pages/errors/my-error
+npm install bootstrap-sass --save
+npm install jquery --save
 ```
 
 ## step 2
 
-Edit **app-rounting.module.ts**
+Edit global sass **styles.scss** to import bootstrap
 
-```js
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { MyHomeComponent } from './pages/home/my-home/my-home.component';
-import { MyAboutComponent } from './pages/about/my-about/my-about.component';
-import { MyErrorComponent } from './pages/errors/my-error/my-error.component';
-
-const routes: Routes = [
-  { path: '', component: MyHomeComponent  },
-  { path: 'about', component: MyAboutComponent  },
-  { path: '**', component: MyErrorComponent }
-];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule { }
+```scss
+/* You can add global styles to this file, and also import other style files */
+$icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
+$font-size-base: 16px; // Override BS
+@import '~bootstrap-sass/assets/stylesheets/bootstrap';
 ```
 
 ## step 3
 
-Add navegation on **app.component.html** a tags user special attr **routerLink="/"**
+Edit **.angular-cli.json** since bootstrap is a third party lib and also add jquery since some of bootstrap components depend on jquery 
 
-```html
-<ul>
-  <li>
-    <a routerLink="/">Home</a>
-  </li>
-  <li>
-    <a routerLink="/about">About</a>
-  </li>
-</ul>
-<router-outlet></router-outlet>
+Locate the script array and add in, bootstrap JS and jquery JS
 
+```json
+{
+ 
+ ...
+ 
+"scripts": [
+        "../node_modules/jquery/dist/jquery.js",
+        "../node_modules/bootstrap-sass/assets/javascripts/bootstrap.js"
+      ]
+      
+  ...
+  
+}
 ```
 
+## step 4
