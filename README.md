@@ -1,28 +1,53 @@
 # Tutorial
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0-rc.4.
+## step 1
 
-## Development server
+create 3 components
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+```bash
+$ ng g component pages/home/my-home
+$ ng g component pages/about/my-about
+$ ng g component pages/errors/my-error
+```
 
-## Code scaffolding
+## step 2
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive/pipe/service/class/module`.
+Edit **app-rounting.module.ts**
 
-## Build
+```js
+import { NgModule } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
+import { MyHomeComponent } from './pages/home/my-home/my-home.component';
+import { MyAboutComponent } from './pages/about/my-about/my-about.component';
+import { MyErrorComponent } from './pages/errors/my-error/my-error.component';
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
+const routes: Routes = [
+  { path: '', component: MyHomeComponent  },
+  { path: 'about', component: MyAboutComponent  },
+  { path: '**', component: MyErrorComponent }
+];
 
-## Running unit tests
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## step 3
 
-## Running end-to-end tests
+Add navegation on **app.component.html** a tags user special attr **routerLink="/"**
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-Before running the tests make sure you are serving the app via `ng serve`.
+```html
+<ul>
+  <li>
+    <a routerLink="/">Home</a>
+  </li>
+  <li>
+    <a routerLink="/about">About</a>
+  </li>
+</ul>
+<router-outlet></router-outlet>
 
-## Further help
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
