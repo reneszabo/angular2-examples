@@ -9,6 +9,7 @@ import { MyHomeComponent } from './pages/home/my-home/my-home.component';
 import { MyAboutComponent } from './pages/about/my-about/my-about.component';
 import { MyErrorComponent } from './pages/errors/my-error/my-error.component';
 import { ListExampleComponent } from './shared/list/list-example/list-example.component';
+import { SlackService } from "./service/slack/slack.service";
 
 @NgModule({
   declarations: [
@@ -24,7 +25,7 @@ import { ListExampleComponent } from './shared/list/list-example/list-example.co
     HttpModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [SlackService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

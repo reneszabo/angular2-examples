@@ -2,68 +2,100 @@
 
 ## step 1
 
-Outputs lets us communicate to the parent that some action has been triggered. 
+Services are meant mostly to interact with APIs, but they can have other uses.
 
-We are going to add to our list component **list-example.component.ts** a output on who has been clicked.
-This action is done by 2 Functions one called **@Output()** function and a Event Emitter Class **EventEmitter**. 
+Lets create a Service to send information to SLACK XD
 
-We also need to sense the click on the component it self, so we are going to add a click event to the box in **list-example.component.html**
-
-**list-example.component.ts**
-
-```typescript
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-
-@Component({
-  selector: 'app-list-example',
-  templateUrl: './list-example.component.html',
-  styleUrls: ['./list-example.component.scss']
-})
-export class ListExampleComponent implements OnInit {
-  // public listOfObjects: any;
-  // public listOfObjects: Array<any>;
-  @Input() public listOfObjects: Array<{name: string, description: string}>;
-  @Output() onClickBox = new EventEmitter<{name: string, description: string}>();
-  constructor() {
-    this.listOfObjects = [
-      { name: "Chris", description: "Designated to code on the worst front end framework of all aka REACT" },
-      { name: "Qiongrong", description: "Loves Vue, we all know way <3" },
-      { name: "Shane", description: "Nobody cares about 3D rendering, drop three.js before is too late" }
-    ];
-  }
-  ngOnInit() {
-    // Move away this.listOfObject because inputs gets passed before INIT gets called. This avoids override.
-  }
-
-  private onClickSendInfo(obj: any) {
-    this.onClickBox.emit(obj);
-  }
-}
-```
-
-**list-example.component.html**
-
-```html
-<div class="row">
-  <div class="col-md-4 col-sm-6" *ngFor="let user of listOfObjects">
-    <div class="well well-sm" (click)="onClickSendInfo(user)">
-      <h3>{{user.name}}</h3>
-      <p>{{user.description}}</p>
-    </div>
-  </div>
-</div>
+```bash
+  ng g service service/slack/slack
 ```
 
 ## step 2
 
-In our parent class, we are going to create a function to handle the emitted event. For the example we are going to use **my-home.component.ts**
+Add the login to sent information to slack, Webhook url will be provided in class.
 
-On the template we are going to bind the event emitter to the function handling your event. For the example we are going to listen in **my-home.component.html** on our second component.
-  
-**my-home.component.ts**
-  
+```typescript
+import { Injectable } from '@angular/core';
+import {Http, Headers, RequestOptions } from "@angular/http";
+
+@Injectable()
+export class SlackService {
+
+  private baseUrl: string = 'URL-WILL-BE-PROVIDED';
+
+  constructor(private http: Http) { }
+
+  public postInSlack(obj: any) {
+    let body = JSON.stringify({ channel: '#angular2', username: obj.name , text: obj.description }); // create the object as slack wants it
+    let headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }); // ... Set content type to JSON
+    let options = new RequestOptions({ headers: headers }); // Create a request option
+    return this.http.post(this.baseUrl, body, options);
+  }
+
+}
+
+```
+
+## step 3
+
+Add reference to our service in the **app.module.ts** under providers we also need to import the class.
+
+```typescript
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpModule } from '@angular/http';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { MyHomeComponent } from './pages/home/my-home/my-home.component';
+import { MyAboutComponent } from './pages/about/my-about/my-about.component';
+import { MyErrorComponent } from './pages/errors/my-error/my-error.component';
+import { ListExampleComponent } from './shared/list/list-example/list-example.component';
+import { SlackService } from "./service/slack/slack.service";
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    MyHomeComponent,
+    MyAboutComponent,
+    MyErrorComponent,
+    ListExampleComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    HttpModule,
+    AppRoutingModule
+  ],
+  providers: [SlackService],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+```
+
+Notice we added the import 
+
+```typescript
+import { SlackService } from "./service/slack/slack.service";
+```
+
+and also the provider 
+
+```typescript
+ providers: [SlackService],
+```
+
+## step 4
+
+Since we have a component that emits a selected object, we are going to take that object and send it to slack.
+
+Service will be used in **my-home.component.ts**
+
 ```typescript
 import { Component, OnInit } from '@angular/core';
+import {SlackService} from "../../../service/slack/slack.service";
 
 @Component({
   selector: 'app-my-home',
@@ -76,7 +108,7 @@ export class MyHomeComponent implements OnInit {
   public selectedUser: any;
 
 
-  constructor() { }
+  constructor(private _slackService: SlackService) { }
 
   ngOnInit() {
     this.users = [
@@ -89,30 +121,48 @@ export class MyHomeComponent implements OnInit {
 
   private getClickedElement(obj: any) {
     this.selectedUser = obj;
+    this._slackService.postInSlack(obj).subscribe((data) => {
+      // Success
+      console.log(data);
+    }, (error) => {
+      // Error
+      console.log(error);
+    }, () => {
+      // run on both success or error
+      console.log('run if success or error');
+    });
   }
 
 }
 
-```  
-
-**my-home.component.html**
-
-```html
-<div class="container">
-  <p>
-    my-home works!
-  </p>
-  <app-list-example></app-list-example>
-  <app-list-example [listOfObjects]="users" (onClickBox)="getClickedElement($event)"></app-list-example>
-  <div *ngIf="selectedUser">
-    <h2>selected</h2>
-    <div class="well well-sm">
-      <h3>{{selectedUser.name}}</h3>
-      <p>{{selectedUser.description}}</p>
-    </div>
-  </div>
-</div>
-
 ```
 
+Notice we added the import to out service 
 
+```typescript
+import {SlackService} from "../../../service/slack/slack.service";
+```
+
+we declared the service in the component constructor
+
+```typescript
+constructor(private _slackService: SlackService) { }
+```
+
+and finally used the service on the **getClickedElement** function
+
+```typescript
+private getClickedElement(obj: any) {
+    this.selectedUser = obj;
+    this._slackService.postInSlack(obj).subscribe((data) => {
+      // Success
+      console.log(data);
+    }, (error) => {
+      // Error
+      console.log(error);
+    }, () => {
+      // run on both success or error
+      console.log('run if success or error');
+    });
+  }
+```

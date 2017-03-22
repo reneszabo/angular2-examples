@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {SlackService} from "../../../service/slack/slack.service";
 
 @Component({
   selector: 'app-my-home',
@@ -11,7 +12,7 @@ export class MyHomeComponent implements OnInit {
   public selectedUser: any;
 
 
-  constructor() { }
+  constructor(private _slackService: SlackService) { }
 
   ngOnInit() {
     this.users = [
@@ -24,6 +25,16 @@ export class MyHomeComponent implements OnInit {
 
   private getClickedElement(obj: any) {
     this.selectedUser = obj;
+    this._slackService.postInSlack(obj).subscribe((data) => {
+      // Success
+      console.log(data);
+    }, (error) => {
+      // Error
+      console.log(error);
+    }, () => {
+      // run on both success or error
+      console.log('run if success or error');
+    });
   }
 
 }
