@@ -12,7 +12,8 @@ Lets create a Service to send information to SLACK XD
 
 ## step 2
 
-Add the login to sent information to slack, Webhook url will be provided in class.
+Add the logic to sent information to slack, Webhook url will be provided in class.
+Edit the new file created with cli, **slack.service.ts**
 
 ```typescript
 import { Injectable } from '@angular/core';
